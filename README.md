@@ -4,27 +4,20 @@ A portable, low-latency operating system focused on predictable performance for 
 
 ## Status
 
-Early development — boot and VGA.
-
-## Stack
-
-- **C** — drivers and interop
-- **Assembly** — boot, context switch
+Early development — no working build yet.
 
 ## Focus
 
-Aurora OS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The scheduler is designed for workloads where every microsecond matters — not for fairness or batch processing.
+Aurora OS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
 
-The goal is an operating system where latency is a requirement, not a consequence. That means:
-
-- **Gaming** — consistent frame pacing, minimal input lag
-- **APIs and services** — predictable response under load
-- **Real-time networking** — controlled jitter
-- **Distributed systems** — synchronization with deterministic latency
-- **Critical applications** — remote surgery, industrial control, automation
-- **Embedded systems** — from the datacenter to hardware with scarce RAM
+Intended for workloads where every microsecond matters: gaming, APIs, real-time networking, distributed systems, critical applications, and embedded systems.
 
 Aurora OS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
+
+## Stack
+
+- **C** — kernel, drivers, interop
+- **Assembly** — boot, context switch
 
 ## Roadmap
 
@@ -38,7 +31,10 @@ Aurora OS is not an operating system for everything. It is an operating system f
 - [ ] Userspace
 - [ ] Drivers
 - [ ] Benchmarks (latency, jitter, p99/p999)
-- [ ] GPU (long term)
+
+## Documentation
+
+- [Architecture Decisions](docs/DECISIONS.md)
 
 ## License
 

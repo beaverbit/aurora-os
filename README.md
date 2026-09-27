@@ -1,7 +1,6 @@
-
 # Aurora OS
 
-A portable, low-latency operating system focused on predictable performance for interactive workloads — gaming, REST APIs, real-time networking, and distributed systems.
+A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
 ## Status
 
@@ -10,12 +9,22 @@ Early development — boot and VGA.
 ## Stack
 
 - **C** — drivers and interop
-- **Rust** — kernel core, memory, scheduler
 - **Assembly** — boot, context switch
 
 ## Focus
 
-Aurora OS targets **tail latency** (p99, p999) rather than average throughput. The scheduler is designed for predictability in interactive workloads, not fairness or batch throughput.
+Aurora OS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The scheduler is designed for workloads where every microsecond matters — not for fairness or batch processing.
+
+The goal is an operating system where latency is a requirement, not a consequence. That means:
+
+- **Gaming** — consistent frame pacing, minimal input lag
+- **APIs and services** — predictable response under load
+- **Real-time networking** — controlled jitter
+- **Distributed systems** — synchronization with deterministic latency
+- **Critical applications** — remote surgery, industrial control, automation
+- **Embedded systems** — from the datacenter to hardware with scarce RAM
+
+Aurora OS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
 ## Roadmap
 

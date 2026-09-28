@@ -1,4 +1,4 @@
-# Aurora OS
+# TailOS
 
 A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
@@ -8,11 +8,11 @@ Early development — no working build yet.
 
 ## Focus
 
-Aurora OS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
+TailOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
 
 Intended for workloads where every microsecond matters: gaming, APIs, real-time networking, distributed systems, critical applications, and embedded systems.
 
-Aurora OS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
+TailOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
 ## Stack
 

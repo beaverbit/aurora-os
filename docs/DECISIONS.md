@@ -532,7 +532,7 @@ English in code and public documentation; Portuguese in internal documentation.
 
 **Consequences:**
 - Code, comments, and README in English.
-- DECISIONS.md in Portuguese (translated to English when public).
+- DECISIONS.md in English.
 - Facilitates international contributors.
 - Facilitates solo development.
 
@@ -659,8 +659,8 @@ Defer to future phase.
 - GitHub Actions evaluated in the future.
 
 **References:**
-- Linux (started solo, CI/CD later)
-- SerenityOS (started solo, CI/CD later)
+- Linux
+- SerenityOS
 
 ---
 

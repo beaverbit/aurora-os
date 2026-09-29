@@ -1,668 +1,668 @@
-# Architecture Decisions
+# Decisões de Arquitetura
 
-Record of technical decisions for TailOS. Each decision documents context, alternatives, choice, and rationale.
+Registro de decisões técnicas para o TailOS. Cada decisão documenta contexto, alternativas, escolha e justificativa.
 
 ---
 
-## Decision 001: C + Assembly as primary stack
+## Decisão 001: C + Assembly como stack principal
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS targets tail latency (p99, p999) and predictability. The stack must be coherent with this goal: no runtime, no garbage collector, no abstraction layers that introduce unpredictable latency.
+**Contexto:**
+O TailOS tem como alvo a latência de cauda (p99, p999) e a previsibilidade. A stack deve ser coerente com esse objetivo: sem runtime, sem garbage collector, sem camadas de abstração que introduzam latência imprevisível.
 
-**Alternatives considered:**
-1. C + Assembly (pure)
-2. C + Assembly + Rust from the start
-3. C + Assembly + high-level languages
+**Alternativas consideradas:**
+1. C + Assembly (puro)
+2. C + Assembly + Rust desde o início
+3. C + Assembly + linguagens de alto nível
 
-**Decision:**
-C + Assembly as primary stack. Rust reserved for critical modules in a future phase. High-level languages permanently discarded.
+**Decisão:**
+C + Assembly como stack principal. Rust reservado para módulos críticos em uma fase futura. Linguagens de alto nível permanentemente descartadas.
 
-**Rationale:**
-- **C**: full control over memory and hardware; minimal latency; predictability; portability.
-- **Assembly**: mandatory for boot, context switch, and architecture-specific instructions; zero overhead.
-- **Rust**: evaluated for critical modules (allocator, scheduler) in a future phase. `no_std` eliminates runtime, but introduces interop complexity with C.
-- **High-level (Python, Java, Go, Node.js)**: discarded. Runtime, GC, and abstraction layers introduce unpredictable latency.
+**Justificativa:**
+- **C**: controle total sobre memória e hardware; latência mínima; previsibilidade; portabilidade.
+- **Assembly**: obrigatório para boot, troca de contexto e instruções específicas de arquitetura; zero overhead.
+- **Rust**: avaliado para módulos críticos (alocador, escalonador) em uma fase futura. `no_std` elimina o runtime, mas introduz complexidade de interop com C.
+- **Alto nível (Python, Java, Go, Node.js)**: descartadas. Runtime, GC e camadas de abstração introduzem latência imprevisível.
 
-**Consequences:**
-- Greater manual effort in memory management.
-- Greater exposure to memory bugs.
-- Full control over latency and system behavior.
-- Portability to architectures with scarce resources.
-- Rust can be introduced incrementally without rewriting the kernel.
+**Consequências:**
+- Maior esforço manual no gerenciamento de memória.
+- Maior exposição a bugs de memória.
+- Controle total sobre latência e comportamento do sistema.
+- Portabilidade para arquiteturas com recursos escassos.
+- Rust pode ser introduzido incrementalmente sem reescrever o kernel.
 
-**References:**
+**Referências:**
 - Linux Kernel (C + Assembly)
 - xv6 (C + Assembly)
-- Redox OS (Rust, reference for future phase)
-- SerenityOS (C++, architecture reference)
+- Redox OS (Rust, referência para fase futura)
+- SerenityOS (C++, referência de arquitetura)
 
 ---
 
-## Decision 002: Scope — tail latency, own category
+## Decisão 002: Escopo — latência de cauda, categoria própria
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its scope in the operating systems ecosystem. The choice is between competing in general use (against Linux, FreeBSD, Windows) or focusing on a specific problem not solved by general-purpose OSes.
+**Contexto:**
+O TailOS precisa definir seu escopo no ecossistema de sistemas operacionais. A escolha é entre competir em uso geral (contra Linux, FreeBSD, Windows) ou focar em um problema específico não resolvido por SOs de propósito geral.
 
-**Alternatives considered:**
-1. General-purpose OS
-2. Niche OS (tail latency)
-3. Own category (low latency + predictability)
+**Alternativas consideradas:**
+1. SO de propósito geral
+2. SO de nicho (latência de cauda)
+3. Categoria própria (baixa latência + previsibilidade)
 
-**Decision:**
-Niche OS focused on tail latency, positioned in its own category: low latency + predictability. Not a competitor to general-purpose OSes.
+**Decisão:**
+SO de nicho focado em latência de cauda, posicionado em sua própria categoria: baixa latência + previsibilidade. Não é concorrente de SOs de propósito geral.
 
-**Rationale:**
-- General-purpose = infinite scope, direct competition with Linux, FreeBSD, Windows.
-- Niche = controlled scope, real problem, measurable differential.
-- Tail latency (p99, p999) is an unsolved problem in general-purpose OSes.
-- Applications: gaming, REST APIs, real-time networking, distributed systems, remote surgery, high-frequency trading, edge computing, critical embedded systems.
-- As the world becomes more interactive, more workloads need predictable latency.
+**Justificativa:**
+- Propósito geral = escopo infinito, concorrência direta com Linux, FreeBSD, Windows.
+- Nicho = escopo controlado, problema real, diferencial mensurável.
+- Latência de cauda (p99, p999) é um problema não resolvido em SOs de propósito geral.
+- Aplicações: jogos, APIs REST, redes em tempo real, sistemas distribuídos, cirurgia remota, trading de alta frequência, edge computing, sistemas embarcados críticos.
+- À medida que o mundo se torna mais interativo, mais cargas de trabalho precisam de latência previsível.
 
-**Consequences:**
-- Does not compete with Linux, FreeBSD, or Windows.
-- Latency-oriented scheduler, not fairness.
-- Priority for interactive workloads.
-- Benchmarks focused on p99/p999, jitter, and predictability.
+**Consequências:**
+- Não compete com Linux, FreeBSD ou Windows.
+- Escalonador orientado a latência, não a justiça.
+- Prioridade para cargas de trabalho interativas.
+- Benchmarks focados em p99/p999, jitter e previsibilidade.
 
-**References:**
-- QNX (real-time)
-- Zephyr (embedded)
+**Referências:**
+- QNX (tempo real)
+- Zephyr (embarcados)
 - PusOS (edge computing)
-- LITMUS^RT (deterministic Linux)
+- LITMUS^RT (Linux determinístico)
 
 ---
 
-## Decision 003: Architecture — monolithic modular
+## Decisão 003: Arquitetura — monolítica modular
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its kernel architecture. The choice is between monolithic, microkernel, or hybrid.
+**Contexto:**
+O TailOS precisa definir sua arquitetura de kernel. A escolha é entre monolítica, microkernel ou híbrida.
 
-**Alternatives considered:**
-1. Pure monolithic
+**Alternativas consideradas:**
+1. Monolítica pura
 2. Microkernel
-3. Hybrid
-4. Monolithic modular
+3. Híbrida
+4. Monolítica modular
 
-**Decision:**
-Monolithic modular.
+**Decisão:**
+Monolítica modular.
 
-**Rationale:**
-- **Pure monolithic**: simpler, but hard to maintain and evolve.
-- **Microkernel**: safer and modular, but introduces IPC overhead (unpredictable latency).
-- **Hybrid**: compromise, but unnecessary complexity.
-- **Monolithic modular**: single kernel in privileged space, organized into modules with clear interfaces. Combines monolithic performance with microkernel modularity.
+**Justificativa:**
+- **Monolítica pura**: mais simples, mas difícil de manter e evoluir.
+- **Microkernel**: mais seguro e modular, mas introduz overhead de IPC (latência imprevisível).
+- **Híbrida**: compromisso, mas complexidade desnecessária.
+- **Monolítica modular**: kernel único em espaço privilegiado, organizado em módulos com interfaces claras. Combina performance monolítica com modularidade de microkernel.
 
-**Consequences:**
-- Drivers and subsystems run in kernel space.
-- Clear interfaces between modules.
-- Facilitates incremental evolution without rewriting.
-- Maintains minimal and predictable latency.
+**Consequências:**
+- Drivers e subsistemas rodam em espaço de kernel.
+- Interfaces claras entre módulos.
+- Facilita evolução incremental sem reescrever.
+- Mantém latência mínima e previsível.
 
-**References:**
-- Linux (monolithic modular)
-- FreeBSD (monolithic modular)
-- SerenityOS (monolithic modular)
+**Referências:**
+- Linux (monolítica modular)
+- FreeBSD (monolítica modular)
+- SerenityOS (monolítica modular)
 
 ---
 
-## Decision 004: Target architecture — x86_64
+## Decisão 004: Arquitetura alvo — x86_64
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its initial target hardware architecture. The choice is between x86_64, ARM64, RISC-V, or multiple.
+**Contexto:**
+O TailOS precisa definir sua arquitetura de hardware alvo inicial. A escolha é entre x86_64, ARM64, RISC-V ou múltiplas.
 
-**Alternatives considered:**
+**Alternativas consideradas:**
 1. x86_64
 2. ARM64
 3. RISC-V
-4. Multiple from the start
+4. Múltiplas desde o início
 
-**Decision:**
-x86_64 as initial target architecture. Other architectures evaluated in a future phase.
+**Decisão:**
+x86_64 como arquitetura alvo inicial. Outras arquiteturas avaliadas em uma fase futura.
 
-**Rationale:**
-- **x86_64**: dominant architecture; abundant documentation; mature QEMU; OSDev Wiki focused on it.
-- **ARM64**: relevant, but documentation less accessible.
-- **RISC-V**: promising, but ecosystem still maturing.
-- **Multiple from the start**: infinite scope, unfeasible for a solo project.
+**Justificativa:**
+- **x86_64**: arquitetura dominante; documentação abundante; QEMU maduro; OSDev Wiki focado nela.
+- **ARM64**: relevante, mas documentação menos acessível.
+- **RISC-V**: promissora, mas ecossistema ainda em maturação.
+- **Múltiplas desde o início**: escopo infinito, inviável para um projeto solo.
 
-**Consequences:**
-- Boot, GDT, IDT, paging, and context switch specific to x86_64.
-- Portability requires future refactoring.
-- Focus on one architecture accelerates development.
+**Consequências:**
+- Boot, GDT, IDT, paginação e troca de contexto específicos para x86_64.
+- Portabilidade exige refatoração futura.
+- Foco em uma arquitetura acelera o desenvolvimento.
 
-**References:**
-- Linux (supports multiple)
+**Referências:**
+- Linux (suporta múltiplas)
 - xv6 (x86)
 - SerenityOS (x86_64)
 
 ---
 
-## Decision 005: Bootloader — Limine
+## Decisão 005: Bootloader — Limine
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs a bootloader to load the kernel. The choice is between writing a custom bootloader, using Multiboot2 + GRUB, or using Limine.
+**Contexto:**
+O TailOS precisa de um bootloader para carregar o kernel. A escolha é entre escrever um bootloader customizado, usar Multiboot2 + GRUB ou usar Limine.
 
-**Alternatives considered:**
-1. Custom bootloader
+**Alternativas consideradas:**
+1. Bootloader customizado
 2. Multiboot2 + GRUB
 3. Limine
 
-**Decision:**
+**Decisão:**
 Limine.
 
-**Rationale:**
-- **Custom bootloader**: unnecessary scope.
-- **Multiboot2 + GRUB**: functional, but complex and has configuration overhead.
-- **Limine**: modern, simple, with its own protocol; clear documentation; QEMU-compatible.
+**Justificativa:**
+- **Bootloader customizado**: escopo desnecessário.
+- **Multiboot2 + GRUB**: funcional, mas complexo e com overhead de configuração.
+- **Limine**: moderno, simples, com protocolo próprio; documentação clara; compatível com QEMU.
 
-**Consequences:**
-- Fast and simple boot.
-- Less time spent on boot, more time on kernel.
+**Consequências:**
+- Boot rápido e simples.
+- Menos tempo gasto no boot, mais tempo no kernel.
 
-**References:**
+**Referências:**
 - Limine (https://github.com/limine-bootloader/limine)
-- SerenityOS (uses Limine)
+- SerenityOS (usa Limine)
 
 ---
 
-## Decision 006: Memory model — 4-level paging
+## Decisão 006: Modelo de memória — paginação de 4 níveis
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its virtual memory model. The choice is between segmentation, 2-level paging, 4-level paging, or 5-level paging.
+**Contexto:**
+O TailOS precisa definir seu modelo de memória virtual. A escolha é entre segmentação, paginação de 2 níveis, paginação de 4 níveis ou paginação de 5 níveis.
 
-**Alternatives considered:**
-1. Segmentation
-2. 2-level paging
-3. 4-level paging (x86_64 standard)
-4. 5-level paging
+**Alternativas consideradas:**
+1. Segmentação
+2. Paginação de 2 níveis
+3. Paginação de 4 níveis (padrão x86_64)
+4. Paginação de 5 níveis
 
-**Decision:**
-4-level paging (x86_64 standard).
+**Decisão:**
+Paginação de 4 níveis (padrão x86_64).
 
-**Rationale:**
-- **Segmentation**: obsolete on x86_64.
-- **2-level paging**: insufficient for 64-bit addressing.
-- **4-level paging**: x86_64 standard; supports 48-bit virtual addresses (256 TB).
-- **5-level paging**: rare hardware; unnecessary complexity.
+**Justificativa:**
+- **Segmentação**: obsoleta no x86_64.
+- **Paginação de 2 níveis**: insuficiente para endereçamento de 64 bits.
+- **Paginação de 4 níveis**: padrão x86_64; suporta endereços virtuais de 48 bits (256 TB).
+- **Paginação de 5 níveis**: hardware raro; complexidade desnecessária.
 
-**Consequences:**
-- Uses PML4, PDPT, PD, and PT.
-- Supports 256 TB of virtual address space.
-- Huge pages (2 MB, 1 GB) to reduce TLB misses.
-- Alignment with x86_64 standard.
+**Consequências:**
+- Usa PML4, PDPT, PD e PT.
+- Suporta 256 TB de espaço de endereço virtual.
+- Páginas grandes (2 MB, 1 GB) para reduzir faltas de TLB.
+- Alinhamento com o padrão x86_64.
 
-**References:**
-- Intel SDM Volume 3A (paging)
-- Linux (x86_64 uses 4 levels)
+**Referências:**
+- Intel SDM Volume 3A (paginação)
+- Linux (x86_64 usa 4 níveis)
 
 ---
 
-## Decision 007: Scheduler — tail-latency oriented
+## Decisão 007: Escalonador — orientado a latência de cauda
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its scheduling policy. The choice is between fairness (CFS-like), real-time (fixed priority), or tail-latency oriented.
+**Contexto:**
+O TailOS precisa definir sua política de escalonamento. A escolha é entre justiça (similar ao CFS), tempo real (prioridade fixa) ou orientada a latência de cauda.
 
-**Alternatives considered:**
-1. Fairness (CFS-like)
-2. Real-time (fixed priority)
-3. Tail-latency oriented
+**Alternativas consideradas:**
+1. Justiça (similar ao CFS)
+2. Tempo real (prioridade fixa)
+3. Orientada a latência de cauda
 
-**Decision:**
-Tail-latency oriented scheduler (p99, p999), not fairness or average throughput.
+**Decisão:**
+Escalonador orientado a latência de cauda (p99, p999), não a justiça ou vazão média.
 
-**Rationale:**
-- **Fairness (CFS-like)**: optimizes average throughput and fairness, but not tail latency.
-- **Real-time (fixed priority)**: guarantees deadlines, but does not adapt to variable interactive workloads.
-- **Tail-latency oriented**: prioritizes predictability; reduces p99 and p999; adapts to variable loads.
+**Justificativa:**
+- **Justiça (similar ao CFS)**: otimiza vazão média e justiça, mas não a latência de cauda.
+- **Tempo real (prioridade fixa)**: garante prazos, mas não se adapta a cargas de trabalho interativas variáveis.
+- **Orientada a latência de cauda**: prioriza previsibilidade; reduz p99 e p999; adapta-se a cargas variáveis.
 
-**Consequences:**
-- Priority for interactive tasks.
-- CPU isolation for critical tasks.
-- Fast preemption.
-- Benchmarks focused on p99/p999, jitter, and predictability.
-- Trade-off: average throughput may be lower than CFS on batch workloads.
+**Consequências:**
+- Prioridade para tarefas interativas.
+- Isolamento de CPU para tarefas críticas.
+- Preempção rápida.
+- Benchmarks focados em p99/p999, jitter e previsibilidade.
+- Trade-off: vazão média pode ser menor que o CFS em cargas de trabalho em lote.
 
-**References:**
+**Referências:**
 - CFS (Linux)
-- LITMUS^RT (deterministic Linux)
-- QNX (real-time)
+- LITMUS^RT (Linux determinístico)
+- QNX (tempo real)
 
 ---
 
-## Decision 008: Drivers — in kernel space
+## Decisão 008: Drivers — em espaço de kernel
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define where drivers run. The choice is between kernel space (monolithic) or user space (microkernel).
+**Contexto:**
+O TailOS precisa definir onde os drivers rodam. A escolha é entre espaço de kernel (monolítico) ou espaço de usuário (microkernel).
 
-**Alternatives considered:**
-1. Kernel space (monolithic)
-2. User space (microkernel)
-3. Hybrid
+**Alternativas consideradas:**
+1. Espaço de kernel (monolítico)
+2. Espaço de usuário (microkernel)
+3. Híbrido
 
-**Decision:**
-Drivers in kernel space.
+**Decisão:**
+Drivers em espaço de kernel.
 
-**Rationale:**
-- **Kernel space**: lower latency (no IPC), simpler, aligned with monolithic modular architecture.
-- **User space**: greater isolation, but IPC overhead introduces unpredictable latency.
-- **Hybrid**: unnecessary complexity.
+**Justificativa:**
+- **Espaço de kernel**: menor latência (sem IPC), mais simples, alinhado com arquitetura monolítica modular.
+- **Espaço de usuário**: maior isolamento, mas overhead de IPC introduz latência imprevisível.
+- **Híbrido**: complexidade desnecessária.
 
-**Consequences:**
-- Drivers have full access to hardware.
-- Greater risk of kernel failure due to driver bug.
-- Lower latency in I/O operations.
-- Alignment with low-latency goal.
+**Consequências:**
+- Drivers têm acesso total ao hardware.
+- Maior risco de falha do kernel devido a bug em driver.
+- Menor latência em operações de I/O.
+- Alinhamento com o objetivo de baixa latência.
 
-**References:**
-- Linux (drivers in kernel)
-- QNX (drivers in userspace, different trade-off)
+**Referências:**
+- Linux (drivers no kernel)
+- QNX (drivers em espaço de usuário, trade-off diferente)
 
 ---
 
-## Decision 009: License — GPLv2
+## Decisão 009: Licença — GPLv2
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its license. The choice is between permissive (MIT, BSD, Apache 2.0) and copyleft (GPLv2, GPLv3).
+**Contexto:**
+O TailOS precisa definir sua licença. A escolha é entre permissiva (MIT, BSD, Apache 2.0) e copyleft (GPLv2, GPLv3).
 
-**Alternatives considered:**
+**Alternativas consideradas:**
 1. MIT
 2. Apache 2.0
 3. GPLv2
 4. GPLv3
 
-**Decision:**
+**Decisão:**
 GPLv2.
 
-**Rationale:**
-- **MIT/Apache 2.0**: permissive; allow proprietary use without contribution back; incompatible with the philosophy of an open, community-driven project.
-- **GPLv2**: copyleft; ensures modifications remain open; compatible with the C ecosystem; Linux's choice.
-- **GPLv3**: more modern, but incompatible with GPLv2 and some libraries.
+**Justificativa:**
+- **MIT/Apache 2.0**: permissivas; permitem uso proprietário sem contribuição de volta; incompatíveis com a filosofia de um projeto aberto e comunitário.
+- **GPLv2**: copyleft; garante que modificações permaneçam abertas; compatível com o ecossistema C; escolha do Linux.
+- **GPLv3**: mais moderna, mas incompatível com GPLv2 e algumas bibliotecas.
 
-**Consequences:**
-- Code remains open and community-driven.
-- Contributions back are mandatory.
-- Incompatibility with Apache 2.0 code (evaluated case by case).
-- Alignment with Linux.
+**Consequências:**
+- Código permanece aberto e comunitário.
+- Contribuições de volta são obrigatórias.
+- Incompatibilidade com código Apache 2.0 (avaliado caso a caso).
+- Alinhamento com o Linux.
 
-**References:**
+**Referências:**
 - Linux (GPLv2)
 - FreeBSD (BSD)
 - Redox OS (MIT)
 
 ---
 
-## Decision 010: Development model — incremental, benchmarks from the start
+## Decisão 010: Modelo de desenvolvimento — incremental, benchmarks desde o início
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its development model. The choice is between developing everything and benchmarking at the end, or developing incrementally with benchmarks from the start.
+**Contexto:**
+O TailOS precisa definir seu modelo de desenvolvimento. A escolha é entre desenvolver tudo e fazer benchmarks no final, ou desenvolver incrementalmente com benchmarks desde o início.
 
-**Alternatives considered:**
-1. Develop everything, benchmark at the end
-2. Develop incrementally, benchmark from the start
+**Alternativas consideradas:**
+1. Desenvolver tudo, benchmark no final
+2. Desenvolver incrementalmente, benchmark desde o início
 
-**Decision:**
-Incremental development, with benchmarks from the start.
+**Decisão:**
+Desenvolvimento incremental, com benchmarks desde o início.
 
-**Rationale:**
-- **Benchmark at the end**: risk of discovering latency problems too late.
-- **Benchmark from the start**: validates design decisions continuously; detects regressions early; generates data for analysis.
-- Alignment with the philosophy of latency as a requirement.
+**Justificativa:**
+- **Benchmark no final**: risco de descobrir problemas de latência tarde demais.
+- **Benchmark desde o início**: valida decisões de design continuamente; detecta regressões cedo; gera dados para análise.
+- Alinhamento com a filosofia de latência como requisito.
 
-**Consequences:**
-- Benchmarks are part of development, not a final step.
-- Each module has an associated benchmark.
-- Latency data guides design decisions.
-- Roadmap includes benchmarks at each phase.
+**Consequências:**
+- Benchmarks são parte do desenvolvimento, não um passo final.
+- Cada módulo tem um benchmark associado.
+- Dados de latência guiam decisões de design.
+- Roadmap inclui benchmarks em cada fase.
 
-**References:**
-- LITMUS^RT (real-time benchmarks)
-- Linux (scheduler benchmarks)
+**Referências:**
+- LITMUS^RT (benchmarks de tempo real)
+- Linux (benchmarks de escalonador)
 
 ---
 
-## Decision 011: Code structure — modular by subsystem
+## Decisão 011: Estrutura de código — modular por subsistema
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its code structure. The choice is between a monolith of files or a modular structure with clear interfaces.
+**Contexto:**
+O TailOS precisa definir sua estrutura de código. A escolha é entre um monólito de arquivos ou uma estrutura modular com interfaces claras.
 
-**Alternatives considered:**
-1. Monolith of files
-2. Modular structure with clear interfaces
+**Alternativas consideradas:**
+1. Monólito de arquivos
+2. Estrutura modular com interfaces claras
 
-**Decision:**
-Modular structure with clear interfaces, organized by subsystem.
+**Decisão:**
+Estrutura modular com interfaces claras, organizada por subsistema.
 
-**Rationale:**
-- **Monolith**: simple at first, but hard to maintain and evolve.
-- **Modular**: each subsystem has a clear interface; facilitates incremental evolution; aligned with monolithic modular architecture.
+**Justificativa:**
+- **Monólito**: simples no início, mas difícil de manter e evoluir.
+- **Modular**: cada subsistema tem uma interface clara; facilita evolução incremental; alinhado com arquitetura monolítica modular.
 
-**Consequences:**
-- `boot/` — bootloader and linker script.
-- `kernel/` — kernel code.
-- `kernel/src/memory/` — memory management.
-- `kernel/src/sched/` — scheduler.
+**Consequências:**
+- `boot/` — bootloader e linker script.
+- `kernel/` — código do kernel.
+- `kernel/src/memory/` — gerenciamento de memória.
+- `kernel/src/sched/` — escalonador.
 - `kernel/src/drivers/` — drivers.
-- `userspace/` — user space code.
-- `docs/` — documentation.
-- `scripts/` — build and run scripts.
+- `userspace/` — código de espaço de usuário.
+- `docs/` — documentação.
+- `scripts/` — scripts de build e execução.
 
-**References:**
+**Referências:**
 - Linux (modular)
 - SerenityOS (modular)
 
 ---
 
-## Decision 012: Build system — Makefile
+## Decisão 012: Sistema de build — Makefile
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its build system. The choice is between Makefile, CMake, Ninja, or a custom build system.
+**Contexto:**
+O TailOS precisa definir seu sistema de build. A escolha é entre Makefile, CMake, Ninja ou um sistema customizado.
 
-**Alternatives considered:**
+**Alternativas consideradas:**
 1. Makefile
 2. CMake
 3. Ninja
-4. Custom build system
+4. Sistema customizado
 
-**Decision:**
+**Decisão:**
 Makefile.
 
-**Rationale:**
-- **Makefile**: simple, universal, standard in kernel projects; full control.
-- **CMake**: complex for a kernel; unnecessary overhead.
-- **Ninja**: fast, but generated by another system.
-- **Custom**: unnecessary scope.
+**Justificativa:**
+- **Makefile**: simples, universal, padrão em projetos de kernel; controle total.
+- **CMake**: complexo para um kernel; overhead desnecessário.
+- **Ninja**: rápido, mas gerado por outro sistema.
+- **Customizado**: escopo desnecessário.
 
-**Consequences:**
-- Makefile defines targets: `build`, `run`, `debug`, `clean`.
-- Integration with GCC, NASM, LD, and QEMU.
-- Full control over compilation flags.
+**Consequências:**
+- Makefile define alvos: `build`, `run`, `debug`, `clean`.
+- Integração com GCC, NASM, LD e QEMU.
+- Controle total sobre flags de compilação.
 
-**References:**
+**Referências:**
 - Linux (Kbuild)
 - xv6 (Makefile)
 - SerenityOS (Makefile + CMake)
 
 ---
 
-## Decision 013: Emulator and debug — QEMU + GDB
+## Decisão 013: Emulador e debug — QEMU + GDB
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its testing and debugging environment. The choice is between real hardware, QEMU, Bochs, VirtualBox, and GDB.
+**Contexto:**
+O TailOS precisa definir seu ambiente de teste e depuração. A escolha é entre hardware real, QEMU, Bochs, VirtualBox e GDB.
 
-**Alternatives considered:**
-1. Real hardware
+**Alternativas consideradas:**
+1. Hardware real
 2. QEMU + GDB
 3. Bochs
 4. VirtualBox
 
-**Decision:**
-QEMU for emulation, GDB for debugging.
+**Decisão:**
+QEMU para emulação, GDB para depuração.
 
-**Rationale:**
-- **Real hardware**: risky, hard to debug, slow to iterate.
-- **QEMU**: mature emulator, x86_64 support, GDB debugging, fast, open source.
-- **GDB**: complete inspection of registers, memory, stack; breakpoints; step-by-step.
-- **Bochs**: good for debugging, but slow.
-- **VirtualBox**: focused on virtualization, not kernel development.
+**Justificativa:**
+- **Hardware real**: arriscado, difícil de depurar, lento para iterar.
+- **QEMU**: emulador maduro, suporte a x86_64, depuração com GDB, rápido, open source.
+- **GDB**: inspeção completa de registradores, memória, pilha; breakpoints; passo a passo.
+- **Bochs**: bom para depuração, mas lento.
+- **VirtualBox**: focado em virtualização, não em desenvolvimento de kernel.
 
-**Consequences:**
-- Development and testing in QEMU.
-- Debugging with GDB connected to QEMU.
-- Tests on real hardware only at milestones.
-- Fast iteration.
+**Consequências:**
+- Desenvolvimento e teste no QEMU.
+- Depuração com GDB conectado ao QEMU.
+- Testes em hardware real apenas em marcos.
+- Iteração rápida.
 
-**References:**
+**Referências:**
 - OSDev Wiki (QEMU + GDB)
 - SerenityOS (QEMU + GDB)
 
 ---
 
-## Decision 014: Version control and hosting — Git + GitHub
+## Decisão 014: Controle de versão e hospedagem — Git + GitHub
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its version control and hosting. The choice is between Git, Mercurial, SVN, and GitHub, GitLab, Codeberg, self-hosted.
+**Contexto:**
+O TailOS precisa definir seu controle de versão e hospedagem. A escolha é entre Git, Mercurial, SVN, e GitHub, GitLab, Codeberg, self-hosted.
 
-**Alternatives considered:**
+**Alternativas consideradas:**
 1. Git + GitHub
 2. Git + GitLab
 3. Git + Codeberg
 4. Mercurial / SVN
 5. Self-hosted
 
-**Decision:**
-Git for version control, GitHub for hosting.
+**Decisão:**
+Git para controle de versão, GitHub para hospedagem.
 
-**Rationale:**
-- **Git**: industry standard; mature tools.
-- **GitHub**: largest community; visibility; GitHub Actions.
-- **GitLab**: good, but less visibility for open source.
-- **Codeberg**: ethical, but less visibility.
-- **Self-hosted**: unnecessary complexity.
+**Justificativa:**
+- **Git**: padrão da indústria; ferramentas maduras.
+- **GitHub**: maior comunidade; visibilidade; GitHub Actions.
+- **GitLab**: bom, mas menos visibilidade para open source.
+- **Codeberg**: ético, mas menos visibilidade.
+- **Self-hosted**: complexidade desnecessária.
 
-**Consequences:**
-- Repository at `https://github.com/beaverbit/tail-os`.
-- Frequent and descriptive commits.
-- Branches for features.
-- Future CI/CD integration.
+**Consequências:**
+- Repositório em `https://github.com/beaverbit/tail-os`.
+- Commits frequentes e descritivos.
+- Branches para features.
+- Integração futura de CI/CD.
 
-**References:**
+**Referências:**
 - Linux (Git + GitHub)
 - SerenityOS (Git + GitHub)
 
 ---
 
-## Decision 015: Versioning — semver
+## Decisão 015: Versionamento — semver
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its versioning scheme. The choice is between linear versioning, semver, or date-based.
+**Contexto:**
+O TailOS precisa definir seu esquema de versionamento. A escolha é entre versionamento linear, semver ou baseado em data.
 
-**Alternatives considered:**
+**Alternativas consideradas:**
 1. Linear (v1, v2, v3)
 2. Semver (MAJOR.MINOR.PATCH)
-3. Date-based (YYYY.MM.DD)
+3. Baseado em data (YYYY.MM.DD)
 
-**Decision:**
+**Decisão:**
 Semver.
 
-**Rationale:**
-- **Linear**: does not communicate compatibility.
-- **Semver**: communicates compatibility; industry standard.
-- **Date-based**: does not communicate compatibility.
+**Justificativa:**
+- **Linear**: não comunica compatibilidade.
+- **Semver**: comunica compatibilidade; padrão da indústria.
+- **Baseado em data**: não comunica compatibilidade.
 
-**Consequences:**
-- Versions: MAJOR.MINOR.PATCH.
-- MAJOR: incompatible changes.
-- MINOR: compatible new features.
-- PATCH: compatible fixes.
+**Consequências:**
+- Versões: MAJOR.MINOR.PATCH.
+- MAJOR: mudanças incompatíveis.
+- MINOR: novas funcionalidades compatíveis.
+- PATCH: correções compatíveis.
 
-**References:**
+**Referências:**
 - Semver (https://semver.org)
 
 ---
 
-## Decision 016: Language — English in code, Portuguese in internal documentation
+## Decisão 016: Idioma — Inglês no código, Português na documentação interna
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its language. The choice is between English, Portuguese, or both.
+**Contexto:**
+O TailOS precisa definir seu idioma. A escolha é entre Inglês, Português ou ambos.
 
-**Alternatives considered:**
-1. English
-2. Portuguese
-3. Both
+**Alternativas consideradas:**
+1. Inglês
+2. Português
+3. Ambos
 
-**Decision:**
-English in code and public documentation; Portuguese in internal documentation.
+**Decisão:**
+Inglês no código e documentação pública; Português na documentação interna.
 
-**Rationale:**
-- **English in code**: industry standard; facilitates international contributors.
-- **Portuguese in internal documentation**: facilitates solo development.
-- **Both**: balance.
+**Justificativa:**
+- **Inglês no código**: padrão da indústria; facilita contribuidores internacionais.
+- **Português na documentação interna**: facilita o desenvolvimento solo.
+- **Ambos**: equilíbrio.
 
-**Consequences:**
-- Code, comments, and README in English.
-- DECISIONS.md in English.
-- Facilitates international contributors.
-- Facilitates solo development.
+**Consequências:**
+- Código, comentários e README em Inglês.
+- DECISIONS.md em Inglês.
+- Facilita contribuidores internacionais.
+- Facilita o desenvolvimento solo.
 
-**References:**
-- Linux (English)
-- SerenityOS (English)
-
----
-
-## Decision 017: Code philosophy — simplicity and clarity
-
-**Status:** Accepted
-
-**Context:**
-TailOS needs to define its code philosophy. The choice is between aggressive optimization or simplicity and clarity.
-
-**Alternatives considered:**
-1. Aggressive optimization
-2. Simplicity and clarity
-3. Both
-
-**Decision:**
-Simplicity and clarity, with optimization when necessary and measurable.
-
-**Rationale:**
-- **Aggressive optimization**: risk of bugs; hard to maintain.
-- **Simplicity and clarity**: easy to understand; easy to maintain; foundation for future optimization.
-- **Both**: balance.
-
-**Consequences:**
-- Clear and readable code.
-- Optimization guided by benchmarks, not intuition.
-- Comments explain the "why", not the "what".
-- Facilitates evolution and contributors.
-
-**References:**
-- Linux (simplicity + optimization)
-- SerenityOS (clarity)
+**Referências:**
+- Linux (Inglês)
+- SerenityOS (Inglês)
 
 ---
 
-## Decision 018: Project philosophy — latency as a requirement
+## Decisão 017: Filosofia de código — simplicidade e clareza
 
-**Status:** Accepted
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its project philosophy. The choice is between latency as a requirement or latency as a consequence.
+**Contexto:**
+O TailOS precisa definir sua filosofia de código. A escolha é entre otimização agressiva ou simplicidade e clareza.
 
-**Alternatives considered:**
-1. Latency as a requirement
-2. Latency as a consequence
+**Alternativas consideradas:**
+1. Otimização agressiva
+2. Simplicidade e clareza
+3. Ambos
 
-**Decision:**
-Latency as a requirement. Every design decision is evaluated by its impact on tail latency.
+**Decisão:**
+Simplicidade e clareza, com otimização quando necessária e mensurável.
 
-**Rationale:**
-- **Latency as a consequence**: general-purpose OS approach; latency is optimized later.
-- **Latency as a requirement**: TailOS approach; latency guides all decisions from the start.
+**Justificativa:**
+- **Otimização agressiva**: risco de bugs; difícil de manter.
+- **Simplicidade e clareza**: fácil de entender; fácil de manter; base para otimização futura.
+- **Ambos**: equilíbrio.
 
-**Consequences:**
-- Every feature is evaluated by its impact on latency.
-- Benchmarks focused on p99/p999, jitter, predictability.
-- Explicit trade-offs: throughput may be lower than general-purpose OSes.
-- Clear philosophy guides project evolution.
+**Consequências:**
+- Código claro e legível.
+- Otimização guiada por benchmarks, não por intuição.
+- Comentários explicam o "porquê", não o "o quê".
+- Facilita evolução e contribuidores.
 
-**References:**
-- QNX (latency as a requirement)
-- LITMUS^RT (latency as a requirement)
-- Linux (latency as a consequence, for contrast)
-
----
-
-## Decision 019: Evolution philosophy — incremental
-
-**Status:** Accepted
-
-**Context:**
-TailOS needs to define its evolution philosophy. The choice is between rewriting or incremental evolution.
-
-**Alternatives considered:**
-1. Rewriting
-2. Incremental evolution
-
-**Decision:**
-Incremental evolution.
-
-**Rationale:**
-- **Rewriting**: loss of knowledge; risk of regression.
-- **Incremental evolution**: maintains knowledge; adds features without breaking.
-
-**Consequences:**
-- Features added incrementally.
-- Benchmarks ensure no regression.
-- Solid foundation before expanding.
-- Facilitates contributors.
-
-**References:**
-- Linux (incremental evolution)
-- SerenityOS (incremental evolution)
+**Referências:**
+- Linux (simplicidade + otimização)
+- SerenityOS (clareza)
 
 ---
 
-## Decision 020: Future phases — CI/CD and contributors
+## Decisão 018: Filosofia do projeto — latência como requisito
 
-**Status:** Deferred
+**Status:** Aceita
 
-**Context:**
-TailOS needs to define its strategy for CI/CD and contributors. The choice is between setting up now or deferring.
+**Contexto:**
+O TailOS precisa definir sua filosofia de projeto. A escolha é entre latência como requisito ou latência como consequência.
 
-**Alternatives considered:**
-1. Set up now
-2. Defer to future phase
+**Alternativas consideradas:**
+1. Latência como requisito
+2. Latência como consequência
 
-**Decision:**
-Defer to future phase.
+**Decisão:**
+Latência como requisito. Toda decisão de design é avaliada pelo seu impacto na latência de cauda.
 
-**Rationale:**
-- **Now**: unnecessary overhead at the start; focus on code.
-- **Future**: when the project has contributors and stability.
+**Justificativa:**
+- **Latência como consequência**: abordagem de SO de propósito geral; latência é otimizada depois.
+- **Latência como requisito**: abordagem do TailOS; latência guia todas as decisões desde o início.
 
-**Consequences:**
-- Focus on code and benchmarks at the start.
-- CI/CD and contributors evaluated in the future.
-- GitHub Actions evaluated in the future.
+**Consequências:**
+- Toda funcionalidade é avaliada pelo seu impacto na latência.
+- Benchmarks focados em p99/p999, jitter, previsibilidade.
+- Trade-offs explícitos: vazão pode ser menor que SOs de propósito geral.
+- Filosofia clara guia a evolução do projeto.
 
-**References:**
-- Linux
-- SerenityOS
+**Referências:**
+- QNX (latência como requisito)
+- LITMUS^RT (latência como requisito)
+- Linux (latência como consequência, para contraste)
 
 ---
 
-- **Date:** 2026-09-27
-- **End of document.**
+## Decisão 019: Filosofia de evolução — incremental
+
+**Status:** Aceita
+
+**Contexto:**
+O TailOS precisa definir sua filosofia de evolução. A escolha é entre reescrever ou evoluir incrementalmente.
+
+**Alternativas consideradas:**
+1. Reescrever
+2. Evolução incremental
+
+**Decisão:**
+Evolução incremental.
+
+**Justificativa:**
+- **Reescrever**: perda de conhecimento; risco de regressão.
+- **Evolução incremental**: mantém o conhecimento; adiciona funcionalidades sem quebrar.
+
+**Consequências:**
+- Funcionalidades adicionadas incrementalmente.
+- Benchmarks garantem que não há regressão.
+- Base sólida antes de expandir.
+- Facilita contribuidores.
+
+**Referências:**
+- Linux (evolução incremental)
+- SerenityOS (evolução incremental)
+
+---
+
+## Decisão 020: Fases futuras — CI/CD e contribuidores
+
+**Status:** Adiada
+
+**Contexto:**
+O TailOS precisa definir sua estratégia para CI/CD e contribuidores. A escolha é entre configurar agora ou adiar.
+
+**Alternativas consideradas:**
+1. Configurar agora
+2. Adiar para fase futura
+
+**Decisão:**
+Adiar para fase futura.
+
+**Justificativa:**
+- **Agora**: overhead desnecessário no início; foco no código.
+- **Futuro**: quando o projeto tiver contribuidores e estabilidade.
+
+**Consequências:**
+- Foco no código e benchmarks no início.
+- CI/CD e contribuidores avaliados no futuro.
+- GitHub Actions avaliado no futuro.
+
+**Referências:**
+- Linux (começou solo, CI/CD depois)
+- SerenityOS (começou solo, CI/CD depois)
+
+---
+
+- **Data:** 2026-09-27
+- **Fim do documento.**

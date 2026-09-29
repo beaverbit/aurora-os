@@ -2,10 +2,6 @@
 
 A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
-## Status
-
-Early development — no working build yet.
-
 ## Focus
 
 TailOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.

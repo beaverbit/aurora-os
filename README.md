@@ -1,41 +1,41 @@
 # TailOS
 
-Um sistema operacional portátil e de baixa latência, focado em desempenho previsível para cargas de trabalho interativas e críticas.
+A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
 ## Status
 
-Desenvolvimento inicial — ainda sem build funcional.
+Early development — no working build yet.
 
-## Foco
+## Focus
 
-O TailOS tem como alvo a **latência de cauda** (p99, p999) e a **previsibilidade**, não a vazão média. O objetivo é um sistema operacional onde a latência é um requisito, não uma consequência.
+TailOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
 
-Destinado a cargas de trabalho onde cada microssegundo importa: jogos, APIs, redes em tempo real, sistemas distribuídos, aplicações críticas e sistemas embarcados.
+Intended for workloads where every microsecond matters: gaming, APIs, real-time networking, distributed systems, critical applications, and embedded systems.
 
-O TailOS não é um sistema operacional para tudo. É um sistema operacional para quando **cada microssegundo importa**.
+TailOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
 ## Stack
 
 - **C** — kernel, drivers, interop
-- **Assembly** — boot, troca de contexto
+- **Assembly** — boot, context switch
 
 ## Roadmap
 
-- [x] Estrutura inicial
+- [x] Initial structure
 - [ ] Boot (Limine/Multiboot2)
-- [ ] Modo texto VGA
+- [ ] VGA text mode
 - [ ] GDT / IDT
-- [ ] Memória física e virtual
-- [ ] Escalonador (orientado a latência de cauda)
+- [ ] Physical and virtual memory
+- [ ] Scheduler (tail-latency oriented)
 - [ ] Syscalls
-- [ ] Espaço de usuário
+- [ ] Userspace
 - [ ] Drivers
-- [ ] Benchmarks (latência, jitter, p99/p999)
+- [ ] Benchmarks (latency, jitter, p99/p999)
 
-## Documentação
+## Documentation
 
-- [Decisões de Arquitetura](docs/DECISIONS.md)
+- [Architecture Decisions](docs/DECISIONS.md)
 
-## Licença
+## License
 
-GPLv2 — veja [LICENSE](LICENSE).
+GPLv2 — see [LICENSE](LICENSE).

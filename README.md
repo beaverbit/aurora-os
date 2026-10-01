@@ -6,17 +6,17 @@
   </picture>
 </p>
 
-# EdgeOS
+# KinetOS
 
 A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
 ## Focus
 
-EdgeOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
+KinetOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
 
 Intended for workloads where every microsecond matters: gaming, APIs, real-time networking, distributed systems, critical applications, and embedded systems.
 
-EdgeOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
+KinetOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
 ## Stack
 
@@ -38,7 +38,7 @@ EdgeOS is not an operating system for everything. It is an operating system for 
 
 ## Documentation
 
-Architecture Decision Records (ADRs) for EdgeOS:
+Architecture Decision Records (ADRs) for KinetOS:
 
 - [Kernel Decisions](docs/DECISIONS_KERNEL.md) — architecture, scope, stack, memory, scheduling, drivers
 - [Project Decisions](docs/DECISIONS_PROJECT.md) — development process, tooling, licensing, code structure, future phases

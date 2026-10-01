@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="docs/logo.png" alt="TailOS" width="70%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/logo.png">
+    <img alt="TailOS" src="docs/logo-light.png" width="70%">
+  </picture>
 </p>
 
 # TailOS

@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
     <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.png">
-    <img alt="TailOS" src="assets/logo-light.png" width="600">
+    <img alt="KinetOS" src="assets/logo-light.png" width="600">
   </picture>
 </p>
 

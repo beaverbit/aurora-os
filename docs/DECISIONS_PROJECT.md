@@ -1,6 +1,6 @@
 # Project Decisions
 
-Record of technical decisions for EdgeOS. This file covers development process, tooling, licensing, code structure, documentation, and future phases.
+Record of technical decisions for KinetOS. This file covers development process, tooling, licensing, code structure, documentation, and future phases.
 
 ---
 
@@ -9,7 +9,7 @@ Record of technical decisions for EdgeOS. This file covers development process, 
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its license. The choice is between permissive (MIT, BSD, Apache 2.0) and copyleft (GPLv2, GPLv3).
+KinetOS needs to define its license. The choice is between permissive (MIT, BSD, Apache 2.0) and copyleft (GPLv2, GPLv3).
 
 **Alternatives considered:**
 1. MIT
@@ -43,7 +43,7 @@ GPLv2.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its development model. The choice is between developing everything and benchmarking at the end, or developing incrementally with benchmarks from the start.
+KinetOS needs to define its development model. The choice is between developing everything and benchmarking at the end, or developing incrementally with benchmarks from the start.
 
 **Alternatives considered:**
 1. Develop everything, benchmark at the end
@@ -74,7 +74,7 @@ Incremental development, with benchmarks from the start.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its code structure. The choice is between a monolith of files or a modular structure with clear interfaces.
+KinetOS needs to define its code structure. The choice is between a monolith of files or a modular structure with clear interfaces.
 
 **Alternatives considered:**
 1. Monolith of files
@@ -108,7 +108,7 @@ Modular structure with clear interfaces, organized by subsystem.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its build system. The choice is between Makefile, CMake, Ninja, or a custom build system.
+KinetOS needs to define its build system. The choice is between Makefile, CMake, Ninja, or a custom build system.
 
 **Alternatives considered:**
 1. Makefile
@@ -142,7 +142,7 @@ Makefile.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its testing and debugging environment. The choice is between real hardware, QEMU, Bochs, VirtualBox, and GDB.
+KinetOS needs to define its testing and debugging environment. The choice is between real hardware, QEMU, Bochs, VirtualBox, and GDB.
 
 **Alternatives considered:**
 1. Real hardware
@@ -177,7 +177,7 @@ QEMU for emulation, GDB for debugging.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its version control and hosting. The choice is between Git, Mercurial, SVN, and GitHub, GitLab, Codeberg, self-hosted.
+KinetOS needs to define its version control and hosting. The choice is between Git, Mercurial, SVN, and GitHub, GitLab, Codeberg, self-hosted.
 
 **Alternatives considered:**
 1. Git + GitHub
@@ -213,7 +213,7 @@ Git for version control, GitHub for hosting.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its versioning scheme. The choice is between linear versioning, semver, or date-based.
+KinetOS needs to define its versioning scheme. The choice is between linear versioning, semver, or date-based.
 
 **Alternatives considered:**
 1. Linear (v1, v2, v3)
@@ -244,7 +244,7 @@ Semver.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its language. The choice is between English, Portuguese, or both.
+KinetOS needs to define its language. The choice is between English, Portuguese, or both.
 
 **Alternatives considered:**
 1. English
@@ -276,7 +276,7 @@ English in code and public documentation; Portuguese in internal documentation.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its code philosophy. The choice is between aggressive optimization or simplicity and clarity.
+KinetOS needs to define its code philosophy. The choice is between aggressive optimization or simplicity and clarity.
 
 **Alternatives considered:**
 1. Aggressive optimization
@@ -308,7 +308,7 @@ Simplicity and clarity, with optimization when necessary and measurable.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its evolution philosophy. The choice is between rewriting or incremental evolution.
+KinetOS needs to define its evolution philosophy. The choice is between rewriting or incremental evolution.
 
 **Alternatives considered:**
 1. Rewriting
@@ -338,7 +338,7 @@ Incremental evolution.
 **Status:** Deferred
 
 **Context:**
-EdgeOS needs to define its strategy for CI/CD and contributors. The choice is between setting up now or deferring.
+KinetOS needs to define its strategy for CI/CD and contributors. The choice is between setting up now or deferring.
 
 **Alternatives considered:**
 1. Set up now
@@ -367,7 +367,7 @@ Defer to future phase.
 **Status:** Deferred
 
 **Context:**
-EdgeOS has x86_64 as its initial target architecture (see `DECISIONS_KERNEL.md`, Decision 004). However, the embedded systems market is dominated by ARM Cortex-M microcontrollers (STM32, nRF, RP2040, LPC) and, increasingly, RISC-V MCUs (ESP32-C3, SiFive). A path to embedded targets would expand the project's applicability to critical embedded systems, which are already cited as a use case in Decision 002.
+KinetOS has x86_64 as its initial target architecture (see `DECISIONS_KERNEL.md`, Decision 004). However, the embedded systems market is dominated by ARM Cortex-M microcontrollers (STM32, nRF, RP2040, LPC) and, increasingly, RISC-V MCUs (ESP32-C3, SiFive). A path to embedded targets would expand the project's applicability to critical embedded systems, which are already cited as a use case in Decision 002.
 
 **Alternatives considered:**
 1. Stay x86_64-only
@@ -405,7 +405,7 @@ Defer embedded target support to a future phase. When pursued, prioritize ARM Co
 **Status:** Deferred
 
 **Context:**
-EdgeOS on x86_64 assumes a userspace with syscalls, separate address spaces, and a full memory management subsystem. Microcontrollers do not have the resources for a traditional userspace: no MMU (only MPU on some Cortex-M), limited RAM (often 64–512 KB), limited flash (often 256 KB–2 MB). An embedded mode is needed to make EdgeOS viable on MCUs.
+KinetOS on x86_64 assumes a userspace with syscalls, separate address spaces, and a full memory management subsystem. Microcontrollers do not have the resources for a traditional userspace: no MMU (only MPU on some Cortex-M), limited RAM (often 64–512 KB), limited flash (often 256 KB–2 MB). An embedded mode is needed to make KinetOS viable on MCUs.
 
 **Alternatives considered:**
 1. Full userspace on MCU (unfeasible)
@@ -442,7 +442,7 @@ Defer embedded mode to a future phase. When pursued, implement a freestanding C 
 **Status:** Deferred
 
 **Context:**
-EdgeOS cites "critical embedded systems" and "edge computing" as use cases (Decision 002). Industrial and IoT deployments rely on specific protocols: MQTT (messaging), Modbus (industrial control), CAN (automotive and industrial), CoAP (constrained IoT), and OPC-UA (industrial interoperability). Supporting these protocols would make EdgeOS directly applicable to industrial and IoT scenarios.
+KinetOS cites "critical embedded systems" and "edge computing" as use cases (Decision 002). Industrial and IoT deployments rely on specific protocols: MQTT (messaging), Modbus (industrial control), CAN (automotive and industrial), CoAP (constrained IoT), and OPC-UA (industrial interoperability). Supporting these protocols would make KinetOS directly applicable to industrial and IoT scenarios.
 
 **Alternatives considered:**
 1. No protocol support (kernel only)

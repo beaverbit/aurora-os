@@ -367,7 +367,7 @@ Defer to future phase.
 **Status:** Deferred
 
 **Context:**
-TailOS has x86_64 as its initial target architecture (Decision 004). However, the embedded systems market is dominated by ARM Cortex-M microcontrollers (STM32, nRF, RP2040, LPC) and, increasingly, RISC-V MCUs (ESP32-C3, SiFive). A path to embedded targets would expand the project's applicability to critical embedded systems, which are already cited as a use case in Decision 002.
+TailOS has x86_64 as its initial target architecture (see `DECISIONS_KERNEL.md`, Decision 004). However, the embedded systems market is dominated by ARM Cortex-M microcontrollers (STM32, nRF, RP2040, LPC) and, increasingly, RISC-V MCUs (ESP32-C3, SiFive). A path to embedded targets would expand the project's applicability to critical embedded systems, which are already cited as a use case in Decision 002.
 
 **Alternatives considered:**
 1. Stay x86_64-only
@@ -382,7 +382,7 @@ Defer embedded target support to a future phase. When pursued, prioritize ARM Co
 - **x86_64-only**: limits applicability to servers and desktops; excludes the embedded market entirely.
 - **ARM Cortex-M**: dominant in embedded; abundant documentation; QEMU supports Cortex-M (e.g., `qemu-system-arm -M mps2-an385`); MPU (not MMU) means a different memory model, but that aligns with the project's philosophy of simplicity and predictability.
 - **RISC-V**: promising and increasingly relevant, but the toolchain and emulation ecosystem are still less mature than ARM's for bare-metal kernel development.
-- **Both at once**: infinite scope; violates Decision 004's rationale of focusing on one architecture to accelerate development.
+- **Both at once**: infinite scope; violates Decision 004 of `DECISIONS_KERNEL.md` (focus on one architecture to accelerate development).
 - **Deferring**: the x86_64 port must reach a stable state (boot, memory, scheduler, syscalls, userspace) before a second architecture is attempted. Porting prematurely would multiply maintenance cost without a working reference.
 
 **Consequences:**
@@ -456,7 +456,7 @@ Defer protocol support to a future phase. When pursued, implement protocols as m
 **Rationale:**
 - **No protocol support**: keeps the kernel minimal, but excludes the industrial/IoT use case entirely.
 - **Core protocols in the kernel**: violates the project's simplicity philosophy; bloats the kernel; introduces dependencies (e.g., TCP/IP stack) that may not be needed.
-- **Modular, opt-in**: aligns with Decision 003 (monolithic modular) and Decision 011 (modular by subsystem); keeps the kernel minimal by default; allows targeted builds for specific deployments.
+- **Modular, opt-in**: aligns with Decision 003 of `DECISIONS_KERNEL.md` (monolithic modular) and Decision 003 of this file (modular by subsystem); keeps the kernel minimal by default; allows targeted builds for specific deployments.
 - **Userspace-only**: would exclude embedded mode, where userspace does not exist.
 
 **Consequences:**

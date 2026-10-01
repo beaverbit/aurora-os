@@ -664,5 +664,118 @@ Defer to future phase.
 
 ---
 
-- **Date:** 2026-09-27
+## Decision 021: Embedded target — ARM Cortex-M as secondary architecture
+
+**Status:** Deferred
+
+**Context:**
+TailOS has x86_64 as its initial target architecture (Decision 004). However, the embedded systems market is dominated by ARM Cortex-M microcontrollers (STM32, nRF, RP2040, LPC) and, increasingly, RISC-V MCUs (ESP32-C3, SiFive). A path to embedded targets would expand the project's applicability to critical embedded systems, which are already cited as a use case in Decision 002.
+
+**Alternatives considered:**
+1. Stay x86_64-only
+2. Add ARM Cortex-M as secondary target
+3. Add RISC-V as secondary target
+4. Add both ARM and RISC-V
+
+**Decision:**
+Defer embedded target support to a future phase. When pursued, prioritize ARM Cortex-M (specifically Cortex-M4/M7, which have optional FPU and MPU but no MMU) as the first embedded target, followed by RISC-V.
+
+**Rationale:**
+- **x86_64-only**: limits applicability to servers and desktops; excludes the embedded market entirely.
+- **ARM Cortex-M**: dominant in embedded; abundant documentation; QEMU supports Cortex-M (e.g., `qemu-system-arm -M mps2-an385`); MPU (not MMU) means a different memory model, but that aligns with the project's philosophy of simplicity and predictability.
+- **RISC-V**: promising and increasingly relevant, but the toolchain and emulation ecosystem are still less mature than ARM's for bare-metal kernel development.
+- **Both at once**: infinite scope; violates Decision 004's rationale of focusing on one architecture to accelerate development.
+- **Deferring**: the x86_64 port must reach a stable state (boot, memory, scheduler, syscalls, userspace) before a second architecture is attempted. Porting prematurely would multiply maintenance cost without a working reference.
+
+**Consequences:**
+- The kernel must not assume x86_64-specific features in architecture-independent code (e.g., no reliance on 4-level paging in the scheduler).
+- A HAL (Hardware Abstraction Layer) will need to be introduced before the first port.
+- The memory model for Cortex-M will differ: no paging, optional MPU, flat physical address space.
+- Drivers will need a separate implementation for each architecture.
+- Benchmarks must be comparable across architectures (same workload, same metrics: p99/p999, jitter).
+
+**References:**
+- Zephyr (multi-architecture RTOS)
+- FreeRTOS (Cortex-M focused)
+- QEMU (Cortex-M emulation)
+- ARMv7-M Architecture Reference Manual
+
+---
+
+## Decision 022: Embedded mode — no_std, single binary, no userspace
+
+**Status:** Deferred
+
+**Context:**
+TailOS on x86_64 assumes a userspace with syscalls, separate address spaces, and a full memory management subsystem. Microcontrollers do not have the resources for a traditional userspace: no MMU (only MPU on some Cortex-M), limited RAM (often 64–512 KB), limited flash (often 256 KB–2 MB). An embedded mode is needed to make TailOS viable on MCUs.
+
+**Alternatives considered:**
+1. Full userspace on MCU (unfeasible)
+2. Single binary with kernel + application linked together
+3. no_std Rust-style approach in C (freestanding)
+4. Separate lightweight RTOS mode
+
+**Decision:**
+Defer embedded mode to a future phase. When pursued, implement a freestanding C mode where the kernel and application are compiled and linked into a single binary, with no userspace, no syscalls, and no dynamic memory allocation after boot.
+
+**Rationale:**
+- **Full userspace on MCU**: requires MMU and memory isolation, which Cortex-M does not have. Even with MPU, the overhead and complexity contradict the project's simplicity philosophy.
+- **Single binary**: eliminates IPC and syscall overhead entirely; the application runs in privileged mode (or a single unprivileged task); latency is minimized.
+- **no_std-style in C**: C is already freestanding-compatible; the project avoids libc dependencies where possible; static allocation is preferred.
+- **Separate RTOS mode**: would duplicate the scheduler and violate the "one kernel, multiple targets" philosophy.
+
+**Consequences:**
+- A new build target (e.g., `make embedded`) produces a single binary.
+- The scheduler runs directly on the application's tasks; no process isolation.
+- Memory is statically allocated at compile time; no heap after boot.
+- Drivers are linked into the binary, not loaded dynamically.
+- Debugging is done via SWD/JTAG, not GDB over QEMU (though QEMU Cortex-M is still useful for early bring-up).
+- The embedded mode shares the scheduler and core kernel logic with x86_64, but not the memory subsystem or userspace.
+
+**References:**
+- FreeRTOS (single binary model)
+- Zephyr (supports both monolithic and userspace modes)
+- Embedded Rust (`no_std` philosophy, adapted to C)
+
+---
+
+## Decision 023: Industrial and IoT protocols — modular, opt-in
+
+**Status:** Deferred
+
+**Context:**
+TailOS cites "critical embedded systems" and "edge computing" as use cases (Decision 002). Industrial and IoT deployments rely on specific protocols: MQTT (messaging), Modbus (industrial control), CAN (automotive and industrial), CoAP (constrained IoT), and OPC-UA (industrial interoperability). Supporting these protocols would make TailOS directly applicable to industrial and IoT scenarios.
+
+**Alternatives considered:**
+1. No protocol support (kernel only)
+2. Core protocols in the kernel
+3. Modular protocols, opt-in at build time
+4. Userspace protocol stack (on x86_64 only)
+
+**Decision:**
+Defer protocol support to a future phase. When pursued, implement protocols as modular, opt-in components, compiled in only when enabled in the build configuration, and usable in both x86_64 and embedded modes.
+
+**Rationale:**
+- **No protocol support**: keeps the kernel minimal, but excludes the industrial/IoT use case entirely.
+- **Core protocols in the kernel**: violates the project's simplicity philosophy; bloats the kernel; introduces dependencies (e.g., TCP/IP stack) that may not be needed.
+- **Modular, opt-in**: aligns with Decision 003 (monolithic modular) and Decision 011 (modular by subsystem); keeps the kernel minimal by default; allows targeted builds for specific deployments.
+- **Userspace-only**: would exclude embedded mode, where userspace does not exist.
+
+**Consequences:**
+- Protocols are organized under a new subsystem (e.g., `kernel/src/proto/`).
+- Each protocol has a clear interface and can be enabled/disabled via build flags.
+- A minimal network stack (or integration with an existing one, e.g., lwIP) will be required for IP-based protocols (MQTT, CoAP).
+- CAN and Modbus may be implemented directly on top of hardware drivers.
+- Benchmarks must measure protocol overhead and its impact on tail latency.
+- The default build remains protocol-free to preserve the minimal kernel.
+
+**References:**
+- lwIP (lightweight IP stack for embedded)
+- Eclipse Paho (MQTT client implementations)
+- FreeMODBUS (Modbus implementation)
+- SocketCAN (Linux CAN subsystem, architectural reference)
+  
+---
+
+- **Date:** 2026-10-01
 - **End of document.**

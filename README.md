@@ -6,24 +6,24 @@
   </picture>
 </p>
 
-EdgeOS
+# EdgeOS
 
 A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.
 
-Focus
+## Focus
 
-EdgeOS targets tail latency (p99, p999) and predictability, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
+EdgeOS targets **tail latency** (p99, p999) and **predictability**, not average throughput. The goal is an operating system where latency is a requirement, not a consequence.
 
 Intended for workloads where every microsecond matters: gaming, APIs, real-time networking, distributed systems, critical applications, and embedded systems.
 
-EdgeOS is not an operating system for everything. It is an operating system for when every microsecond matters.
+EdgeOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
-Stack
+## Stack
 
-- C — kernel, drivers, interop
-- Assembly — boot, context switch
+- **C** — kernel, drivers, interop
+- **Assembly** — boot, context switch
 
-Roadmap
+## Roadmap
 
 - [x] Initial structure
 - [ ] Boot (Limine/Multiboot2)
@@ -36,13 +36,12 @@ Roadmap
 - [ ] Drivers
 - [ ] Benchmarks (latency, jitter, p99/p999)
 
-Documentation
+## Documentation
 
 Architecture Decision Records (ADRs) for EdgeOS:
 
-- "Kernel Decisions" (docs/DECISIONS_KERNEL.md) — architecture, scope, stack, memory, scheduling, drivers
-- "Project Decisions" (docs/DECISIONS_PROJECT.md) — development process, tooling, licensing, code structure, future phases
+- [Kernel Decisions](docs/DECISIONS_KERNEL.md) — architecture, scope, stack, memory, scheduling, drivers
+- [Project Decisions](docs/DECISIONS_PROJECT.md) — development process, tooling, licensing, code structure, future phases
+## License
 
-License
-
-GPLv2 — see "LICENSE" (LICENSE).
+GPLv2 — see [LICENSE](LICENSE).

@@ -1,6 +1,6 @@
 # Kernel Decisions
 
-Record of technical decisions for EdgeOS. This file covers kernel architecture, scope, stack, memory, scheduling, and drivers.
+Record of technical decisions for KinetOS. This file covers kernel architecture, scope, stack, memory, scheduling, and drivers.
 
 ---
 
@@ -9,7 +9,7 @@ Record of technical decisions for EdgeOS. This file covers kernel architecture, 
 **Status:** Accepted
 
 **Context:**
-EdgeOS targets tail latency (p99, p999) and predictability. The stack must be coherent with this goal: no runtime, no garbage collector, no abstraction layers that introduce unpredictable latency.
+KinetOS targets tail latency (p99, p999) and predictability. The stack must be coherent with this goal: no runtime, no garbage collector, no abstraction layers that introduce unpredictable latency.
 
 **Alternatives considered:**
 1. C + Assembly (pure)
@@ -45,7 +45,7 @@ C + Assembly as primary stack. Rust reserved for critical modules in a future ph
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its scope in the operating systems ecosystem. The choice is between competing in general use (against Linux, FreeBSD, Windows) or focusing on a specific problem not solved by general-purpose OSes.
+KinetOS needs to define its scope in the operating systems ecosystem. The choice is between competing in general use (against Linux, FreeBSD, Windows) or focusing on a specific problem not solved by general-purpose OSes.
 
 **Alternatives considered:**
 1. General-purpose OS
@@ -81,7 +81,7 @@ Niche OS focused on tail latency, positioned in its own category: low latency + 
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its kernel architecture. The choice is between monolithic, microkernel, or hybrid.
+KinetOS needs to define its kernel architecture. The choice is between monolithic, microkernel, or hybrid.
 
 **Alternatives considered:**
 1. Pure monolithic
@@ -116,7 +116,7 @@ Monolithic modular.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its initial target hardware architecture. The choice is between x86_64, ARM64, RISC-V, or multiple.
+KinetOS needs to define its initial target hardware architecture. The choice is between x86_64, ARM64, RISC-V, or multiple.
 
 **Alternatives considered:**
 1. x86_64
@@ -150,7 +150,7 @@ x86_64 as initial target architecture. Other architectures evaluated in a future
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs a bootloader to load the kernel. The choice is between writing a custom bootloader, using Multiboot2 + GRUB, or using Limine.
+KinetOS needs a bootloader to load the kernel. The choice is between writing a custom bootloader, using Multiboot2 + GRUB, or using Limine.
 
 **Alternatives considered:**
 1. Custom bootloader
@@ -180,7 +180,7 @@ Limine.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its virtual memory model. The choice is between segmentation, 2-level paging, 4-level paging, or 5-level paging.
+KinetOS needs to define its virtual memory model. The choice is between segmentation, 2-level paging, 4-level paging, or 5-level paging.
 
 **Alternatives considered:**
 1. Segmentation
@@ -214,7 +214,7 @@ EdgeOS needs to define its virtual memory model. The choice is between segmentat
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its scheduling policy. The choice is between fairness (CFS-like), real-time (fixed priority), or tail-latency oriented.
+KinetOS needs to define its scheduling policy. The choice is between fairness (CFS-like), real-time (fixed priority), or tail-latency oriented.
 
 **Alternatives considered:**
 1. Fairness (CFS-like)
@@ -248,7 +248,7 @@ Tail-latency oriented scheduler (p99, p999), not fairness or average throughput.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define where drivers run. The choice is between kernel space (monolithic) or user space (microkernel).
+KinetOS needs to define where drivers run. The choice is between kernel space (monolithic) or user space (microkernel).
 
 **Alternatives considered:**
 1. Kernel space (monolithic)
@@ -280,7 +280,7 @@ Drivers in kernel space.
 **Status:** Accepted
 
 **Context:**
-EdgeOS needs to define its project philosophy. The choice is between latency as a requirement or latency as a consequence.
+KinetOS needs to define its project philosophy. The choice is between latency as a requirement or latency as a consequence.
 
 **Alternatives considered:**
 1. Latency as a requirement
@@ -291,7 +291,7 @@ Latency as a requirement. Every design decision is evaluated by its impact on ta
 
 **Rationale:**
 - **Latency as a consequence**: general-purpose OS approach; latency is optimized later.
-- **Latency as a requirement**: EdgeOS approach; latency guides all decisions from the start.
+- **Latency as a requirement**: KinetOS approach; latency guides all decisions from the start.
 
 **Consequences:**
 - Every feature is evaluated by its impact on latency.

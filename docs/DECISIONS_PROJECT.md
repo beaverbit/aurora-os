@@ -197,7 +197,7 @@ Git for version control, GitHub for hosting.
 - **Self-hosted**: unnecessary complexity.
 
 **Consequences:**
-- Repository at `https://github.com/beaverbit/tail-os`.
+- Repository at `https://github.com/beaverbit/edge-os`.
 - Frequent and descriptive commits.
 - Branches for features.
 - Future CI/CD integration.

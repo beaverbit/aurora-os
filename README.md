@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.png" alt="TailOS" width="70%">
+</p>
+
 # TailOS
 
 A portable, low-latency operating system focused on predictable performance for interactive and critical workloads.

@@ -275,7 +275,7 @@ Drivers in kernel space.
 
 ---
 
-## Decision 018: Project philosophy — latency as a requirement
+## Decision 009: Project philosophy — latency as a requirement
 
 **Status:** Accepted
 

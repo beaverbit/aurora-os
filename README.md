@@ -30,8 +30,10 @@ TailOS is not an operating system for everything. It is an operating system for 
 
 ## Documentation
 
-- [Architecture Decisions](docs/DECISIONS.md)
+Architecture Decision Records (ADRs) for TailOS:
 
+- [Kernel Decisions](docs/DECISIONS_KERNEL.md) — architecture, scope, stack, memory, scheduling, drivers
+- [Project Decisions](docs/DECISIONS_PROJECT.md) — development process, tooling, licensing, code structure, future phases
 ## License
 
 GPLv2 — see [LICENSE](LICENSE).

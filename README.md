@@ -23,25 +23,12 @@ KinetOS is not an operating system for everything. It is an operating system for
 - **C** — kernel, drivers, interop
 - **Assembly** — boot, context switch
 
-## Roadmap
-
-- [x] Initial structure
-- [ ] Boot (Limine/Multiboot2)
-- [ ] VGA text mode
-- [ ] GDT / IDT
-- [ ] Physical and virtual memory
-- [ ] Scheduler (tail-latency oriented)
-- [ ] Syscalls
-- [ ] Userspace
-- [ ] Drivers
-- [ ] Benchmarks (latency, jitter, p99/p999)
-
 ## Documentation
 
-Architecture Decision Records (ADRs) for KinetOS:
-
+- [Roadmap](docs/ROADMAP.md) — current status and milestones
 - [Kernel Decisions](docs/DECISIONS_KERNEL.md) — architecture, scope, stack, memory, scheduling, drivers
 - [Project Decisions](docs/DECISIONS_PROJECT.md) — development process, tooling, licensing, code structure, future phases
+
 ## License
 
 GPLv2 — see [LICENSE](LICENSE).

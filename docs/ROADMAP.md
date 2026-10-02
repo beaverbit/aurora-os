@@ -17,6 +17,4 @@ Current status of KinetOS development. Checkboxes are marked as milestones are r
 
 ## Notes
 
-- Each phase is a milestone. A tag is created when a phase is complete.
-- Benchmarks are developed alongside each phase, not at the end.
 - See `DECISIONS_KERNEL.md` and `DECISIONS_PROJECT.md` for architectural context.

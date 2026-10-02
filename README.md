@@ -25,7 +25,7 @@ KinetOS is not an operating system for everything. It is an operating system for
 
 ## Documentation
 
-See [`docs/`](docs/) for the full documentation index.
+See [Documentation](docs/) for the full documentation index.
 
 ## License
 

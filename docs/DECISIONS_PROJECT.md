@@ -239,7 +239,7 @@ Semver.
 
 ---
 
-## Decision 008: Language — English in code, Portuguese in internal documentation
+## Decision 008: Language — English as the standard
 
 **Status:** Accepted
 
@@ -247,27 +247,30 @@ Semver.
 KinetOS needs to define its language. The choice is between English, Portuguese, or both.
 
 **Alternatives considered:**
-1. English
-2. Portuguese
-3. Both
+1. English only
+2. Portuguese only
+3. English in code, Portuguese in internal documentation
 
 **Decision:**
-English in code and public documentation; Portuguese in internal documentation.
+English as the standard for everything: code, comments, documentation (public and internal), commit messages, issues, and pull requests.
 
 **Rationale:**
-- **English in code**: industry standard; facilitates international contributors.
-- **Portuguese in internal documentation**: facilitates solo development.
-- **Both**: balance.
+- **English only**: industry standard; facilitates international contributors; avoids translation overhead; keeps the project consistent.
+- **Portuguese only**: limits the project's reach; makes international contributions impossible.
+- **Mixed (English in code, Portuguese in docs)**: creates inconsistency; requires contributors to know both languages; adds maintenance burden.
 
 **Consequences:**
-- Code, comments, and README in English.
-- DECISIONS.md in English.
-- Facilitates international contributors.
-- Facilitates solo development.
+- Code, comments, README, ADRs, and all documentation in English.
+- Commit messages in English.
+- Issues and pull requests in English.
+- Easier onboarding for international contributors.
+- No language switching during development.
+- Slight overhead for solo development (writing in a non-native language), but long-term gain in reach and consistency.
 
 **References:**
 - Linux (English)
 - SerenityOS (English)
+- Zephyr (English)
 
 ---
 

@@ -18,11 +18,6 @@ Intended for workloads where every microsecond matters: gaming, APIs, real-time 
 
 KinetOS is not an operating system for everything. It is an operating system for when **every microsecond matters**.
 
-## Stack
-
-- **C** — kernel, drivers, interop
-- **Assembly** — boot, context switch
-
 ## Documentation
 
 See [Documentation](docs/) for the full documentation index.
